@@ -10,6 +10,7 @@ from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 
 
+# Function used to create a new feature later
 def computeFraction( poi_messages, all_messages ):
     """ given a number messages to/from POI (numerator) 
         and number of all messages to/from a person (denominator),
@@ -31,7 +32,7 @@ def computeFraction( poi_messages, all_messages ):
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
-""""
+
 print " *** DATA EXPLORATION ***\n"
 print "number of people (data points):", len(data_dict)
 
@@ -55,7 +56,7 @@ print "number of POIs:", len(data_dict) - count_poi
 print "number of folks have a quantified salary", count_salary
 print "number of folks have a known email_address", count_email
 print "number of folks have NaN for total_payments", count_NaN_payments
-"""
+
 
 
 ### TASK 1: Remove outliers
@@ -63,7 +64,7 @@ print "number of folks have NaN for total_payments", count_NaN_payments
 ### remove the TOTAL line
 data_dict.pop('TOTAL', 0)
 
-"""
+
 #TEST OUTLIERS BY PAIR
 # tested "salary" against: "bonus", 'deferral_payments', 'total_payments', 'loan_advances', "total_stock_value"
 # max deferral_payments: FREVERT MARK A
@@ -92,7 +93,7 @@ person = max(data_dict, key=lambda person: data_dict[person]['from_poi_to_this_p
 	else float("-inf"))
 
 print person, data_dict[person]
-"""
+
 
 
 
@@ -126,7 +127,7 @@ for name in data_dict:
 	my_dataset[name]["fraction_to_poi"] = fraction_to_poi
 
 
-"""
+
 ### Draw a scatter plot to show fraction_from_poi and fraction_to_poi
 features_email_poi = ["poi", "fraction_from_poi", "fraction_to_poi"]
 
@@ -143,7 +144,7 @@ for point in data:
 matplotlib.pyplot.xlabel("fraction_from_poi")
 matplotlib.pyplot.ylabel("fraction_to_poi")
 matplotlib.pyplot.show()
-"""
+
 
 
 
@@ -175,7 +176,7 @@ features = scaler.fit_transform(features)
 
 
 """
-### Perform PCA - SHOULD REVISIT. Do PCA on the whole training features? then what? selecting the top components?
+### Perform PCA
 
 pca = PCA(n_components=2)
 pca.fit(features)
@@ -232,7 +233,7 @@ features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
 
-""" KFold. Doesn't make any difference
+""" #Tried KFold. Doesn't make any difference
 #print len(labels)
 #132 data points
 from sklearn.cross_validation import KFold
@@ -282,7 +283,8 @@ parameters = {'criterion':('gini', 'entropy'), 'splitter':('best', 'random'), 'm
 
 
 """
-### Feature selection
+### Feature selection,  using the complete list of features from line 158
+### Do this here because data set needs splitting up into train and test first
 
 ### Use SelectKBest. SelectPercentile produces the same scores
 from sklearn.feature_selection import SelectKBest, f_classif
@@ -322,22 +324,12 @@ salary: 15.8060900874 , p-value =  0.000134321523395
 fraction_to_poi: 13.7914132368 , p-value =  0.000339568747843
 total_stock_value: 10.814634863 , p-value =  0.00139929018995
 shared_receipt_with_poi: 10.6697373596 , p-value =  0.00150147878585
+
+#feature selection: bonus has a very high score, and p-value << 0.05. however it reduces the accuracy???"
+
 """
 
 
-
-print "\n *** TO DO ***"
-print "- should read about using Pipeline. "
-print "- feature selection: bonus has a very high score, and p-value << 0.05. however it reduces the accuracy???"
-print "+ should use lasso. \n+ how do I choose k for SelectKBest? try to play around with k, perhaps using Pipeline\
- \n+ use Pipeline for feature selection"
-print "- tune algorithm"
-# https://www.quora.com/How-do-I-properly-use-SelectKBest-GridSearchCV-and-cross-validation-in-the-sklearn-package-together
-# http://nlp.stanford.edu/IR-book/html/htmledition/feature-selection-1.html
-# http://sujitpal.blogspot.com/2013/05/feature-selection-with-scikit-learn.html
-# http://scikit-learn.org/stable/auto_examples/feature_selection/feature_selection_pipeline.html#example-feature-selection-feature-selection-pipeline-py
-# http://stackoverflow.com/questions/32543654/scikit-learn-get-selected-features-when-using-selectkbest-within-pipeline
-# https://civisanalytics.com/blog/data-science/2016/01/06/workflows-python-using-pipeline-gridsearchcv-for-compact-code/
 
 
 ### TASK 6: Dump your classifier, dataset, and features_list so anyone can
@@ -346,11 +338,3 @@ print "- tune algorithm"
 ### generates the necessary .pkl files for validating your results.
 
 dump_classifier_and_data(clf, my_dataset, features_list)
-
-
-
-""" TO DO
-read about pickle file and experiment with it
-http://www.diveinto.org/python3/serializing.html
-http://stackoverflow.com/questions/7501947/understanding-pickling-in-python
-"""
