@@ -39,7 +39,13 @@ def article_overview(kind, period):
     titles = []
     urls =[]
     # YOUR CODE HERE
-
+    for article in data:
+        titles.append({article["section"]: article["title"]})
+        if "media" in article:
+            for m in article["media"]:
+                for metadata in m["media-metadata"]:
+                    if metadata["format"] == "Standard Thumbnail":
+                        urls.append(metadata["url"])
     return (titles, urls)
 
 
@@ -86,8 +92,7 @@ def save_file(kind, period):
     with codecs.open("popular-{0}-{1}.json".format(kind, period), encoding='utf-8', mode='w') as v:
         for offset in range(0, num_results, 20):        
             data = get_popular(URL_POPULAR, kind, period, offset=offset)
-            full_data += data["results"]
-        
+            full_data += data["results"]        
         v.write(json.dumps(full_data, indent=2))
 
 
