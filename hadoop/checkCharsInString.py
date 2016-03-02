@@ -35,9 +35,12 @@ def mapper(inputFile, outputFile):
         for line in reader:
             if not containsAny(line[4], chars):
                 writer.writerow(line)
+                count += 1
             else:
                 if not containsAny(line[4][0:len(line[4])-5], chars):  # Not taking into account </p>
                     writer.writerow(line)
+                    count += 1
+    return count
 
                 
                 
